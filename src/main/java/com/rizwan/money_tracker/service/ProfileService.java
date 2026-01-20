@@ -4,6 +4,7 @@ import com.rizwan.money_tracker.dto.ProfileDto;
 import com.rizwan.money_tracker.entity.Profile;
 import com.rizwan.money_tracker.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,6 +15,7 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public ProfileDto regilsterProfile(ProfileDto dto) {
         Profile newProfile = toProfile(dto);
@@ -40,7 +42,7 @@ public class ProfileService {
     private Profile toProfile(ProfileDto dto) {
         Profile profile = new Profile();
         profile.setEmail(dto.getEmail());
-        profile.setPassword(dto.getPassword());
+        profile.setPassword(passwordEncoder.encode(dto.getPassword()));
         profile.setProfileImageUrl(dto.getProfileImageUrl());
         profile.setFullName(dto.getFullName());
         return profile;
