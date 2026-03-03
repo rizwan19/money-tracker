@@ -19,7 +19,7 @@ public class NotificationService {
 
     private final ProfileRepository profileRepository;
     private final ExpenseService expenseService;
-    private final EmailService emailService;
+    private final BrevoEmailService brevoEmailService;
 
     @Value("${money.manager.frontend.url}")
     private String frontendUrl;
@@ -35,7 +35,7 @@ public class NotificationService {
                     "You can log your transactions here: " + frontendUrl + "\n\n" +
                     "Best regards,\n" +
                     "Money Tracker Team";
-            emailService.sendEmail(profile.getEmail(), "Daily Income & Expense Reminder", body);
+            brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Income & Expense Reminder", body, "");
         }
     }
 
@@ -67,7 +67,7 @@ public class NotificationService {
                         "You can view more details in the Money Tracker app: " + frontendUrl + "\n\n" +
                         "Best regards,\n" +
                         "Money Tracker Team";
-                emailService.sendEmail(profile.getEmail(), "Daily Expense Summary", body);
+                brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Expense Summary", body, "");
                 log.info("Job completed: sendDailyExpenseSummary");
             }
         }

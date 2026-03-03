@@ -24,7 +24,7 @@ import java.util.UUID;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final EmailService emailService;
+    private final BrevoEmailService brevoEmailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -39,7 +39,7 @@ public class ProfileService {
         String activationLink = activationUrl + "/api/v1.0/activate?token=" + newProfile.getToken();
         String subject = "Activate your account";
         String body = "Click on the activation link to activate your account: " + activationLink;
-        emailService.sendEmail(newProfile.getEmail(), subject, body);
+        brevoEmailService.sendEmail(newProfile.getEmail(), newProfile.getFullName(), subject, body, "");
         return toDto(profileRepository.save(newProfile));
     }
 
