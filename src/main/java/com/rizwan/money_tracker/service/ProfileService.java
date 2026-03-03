@@ -39,7 +39,7 @@ public class ProfileService {
         String activationLink = activationUrl + "/api/v1.0/activate?token=" + newProfile.getToken();
         String subject = "Activate your account";
         String body = "Click on the activation link to activate your account: " + activationLink;
-        brevoEmailService.sendEmail(newProfile.getEmail(), newProfile.getFullName(), subject, body, "");
+        brevoEmailService.sendEmail(newProfile.getEmail(), newProfile.getFullName(), subject, body, "Thanks");
         return toDto(profileRepository.save(newProfile));
     }
 

@@ -35,7 +35,7 @@ public class NotificationService {
                     "You can log your transactions here: " + frontendUrl + "\n\n" +
                     "Best regards,\n" +
                     "Money Tracker Team";
-            brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Income & Expense Reminder", body, "");
+            brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Income & Expense Reminder", body, "Thanks.");
         }
     }
 
@@ -67,7 +67,7 @@ public class NotificationService {
                         "You can view more details in the Money Tracker app: " + frontendUrl + "\n\n" +
                         "Best regards,\n" +
                         "Money Tracker Team";
-                brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Expense Summary", body, "");
+                brevoEmailService.sendEmail(profile.getEmail(), profile.getFullName(), "Daily Expense Summary", body, "Thanks");
                 log.info("Job completed: sendDailyExpenseSummary");
             }
         }
