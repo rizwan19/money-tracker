@@ -47,7 +47,7 @@ public class CategoryService {
 
     public List<CategoryDto> getCategoriesByCurrentProfile() {
         Long profileId = profileService.getCurrentProfile().getId();
-        return categoryRepository.getByProfilleId(profileId)
+        return categoryRepository.getByProfileId(profileId)
                 .stream()
                 .map(this::toDto)
                 .toList();

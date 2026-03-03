@@ -5,10 +5,7 @@ import com.rizwan.money_tracker.service.IncomeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,5 +20,17 @@ public class IncomeController {
     public ResponseEntity<List<IncomeDto>> addIncome(@RequestBody IncomeDto dto) {
         IncomeDto addedIncome = incomeService.addIncome(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(List.of(addedIncome));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<IncomeDto>> getExpenses() {
+        List<IncomeDto> incomes = incomeService.getCurrentMonthIncomes();
+        return ResponseEntity.ok(incomes);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIncome(@PathVariable Long id) {
+        incomeService.deleteIncome(id);
+        return ResponseEntity.noContent().build();
     }
 }

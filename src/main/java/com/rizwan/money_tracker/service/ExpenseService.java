@@ -7,10 +7,13 @@ import com.rizwan.money_tracker.entity.Profile;
 import com.rizwan.money_tracker.repository.CategoryRepository;
 import com.rizwan.money_tracker.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -59,5 +62,38 @@ public class ExpenseService {
                 .createdAt(expense.getCreatedAt())
                 .modifiedAt(expense.getModifiedAt())
                 .build();
+    }
+
+    public void deleteExpense(Long id) {
+        Profile profile = profileService.getCurrentProfile();
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        expenseRepository.delete(expense);
+    }
+
+    public List<ExpenseDto> getLatestFiveExpenses() {
+        Profile profile = profileService.getCurrentProfile();
+        List<Expense> expenses = expenseRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return expenses.stream().map(this::toDto).toList();
+    }
+
+    public BigDecimal getTotalExpense() {
+        Profile profile = profileService.getCurrentProfile();
+        BigDecimal total = expenseRepository.findTotalExpenseByProfileId(profile.getId());
+        return Objects.nonNull(total) ? total : BigDecimal.ZERO;
+    }
+
+    public List<ExpenseDto> filterExpenses(LocalDateTime startDate, LocalDateTime endDate, String term, Sort sort) {
+        Profile profile = profileService.getCurrentProfile();
+        List<Expense> expenses = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, term, sort);
+        return expenses.stream().map(this::toDto).toList();
+    }
+
+    public List<ExpenseDto> getExpensesOnDate(Long profileId, LocalDateTime date) {
+        List<Expense> expenses = expenseRepository.findByProfileIdAndDate(profileId, date);
+        return expenses.stream().map(this::toDto).toList();
     }
 }

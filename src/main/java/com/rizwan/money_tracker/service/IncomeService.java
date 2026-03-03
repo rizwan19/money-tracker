@@ -7,7 +7,13 @@ import com.rizwan.money_tracker.entity.Profile;
 import com.rizwan.money_tracker.repository.CategoryRepository;
 import com.rizwan.money_tracker.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +53,42 @@ public class IncomeService {
                 .createdAt(income.getCreatedAt())
                 .modifiedAt(income.getModifiedAt())
                 .build();
+    }
+
+    public List<IncomeDto> getCurrentMonthIncomes() {
+        Profile profile = profileService.getCurrentProfile();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.withDayOfMonth((1));
+        LocalDateTime endDate = now.withDayOfMonth(now.toLocalDate().lengthOfMonth());
+        List<Income> incomes = incomeRepository.findByProfileIdAndDateBetween(profile.getId(), startDate, endDate);
+        return incomes.stream().map(this::toDto).toList();
+    }
+
+    public void deleteIncome(Long id) {
+        Profile profile = profileService.getCurrentProfile();
+        Income income = incomeRepository.findById(id).orElseThrow(() -> new RuntimeException("Income not found"));
+
+        if (!income.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        incomeRepository.delete(income);
+    }
+
+    public List<IncomeDto> getLatestFiveIncomes() {
+        Profile profile = profileService.getCurrentProfile();
+        List<Income> incomes = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return incomes.stream().map(this::toDto).toList();
+    }
+
+    public BigDecimal getTotalIncome() {
+        Profile profile = profileService.getCurrentProfile();
+        BigDecimal total = incomeRepository.findTotalIncomeByProfileId(profile.getId());
+        return Objects.nonNull(total) ? total : BigDecimal.ZERO;
+    }
+
+    public List<IncomeDto> filterIncomes(LocalDateTime startDate, LocalDateTime endDate, String term, Sort sort) {
+        Profile profile = profileService.getCurrentProfile();
+        List<Income> incomes = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, term, sort);
+        return incomes.stream().map(this::toDto).toList();
     }
 }

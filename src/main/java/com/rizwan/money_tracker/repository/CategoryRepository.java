@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    List<Category> getByProfilleId(Long profileId);
+    List<Category> getByProfileId(Long profileId);
     Optional<Category> findByIdAndProfileId(Long id, Long profileId);
     List<Category> getByTypeAndProfileId(String type, Long profileId);
 

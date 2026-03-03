@@ -12,8 +12,6 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    List<Expense> findByProfileIdOrderByDateDesc(Long profileId);
-
     List<Expense> findTop5ByProfileIdOrderByDateDesc(Long profileId);
 
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.profile.id = :profileId")
@@ -22,4 +20,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDateTime startDate, LocalDateTime endDate, String name, Sort sort);
 
     List<Expense> findByProfileIdAndDateBetween(Long profileId, LocalDateTime startDate, LocalDateTime endDate);
+
+    List<Expense> findByProfileIdAndDate(Long profileId, LocalDateTime date);
 }
