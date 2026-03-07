@@ -1,6 +1,14 @@
+import Dashboard from "../components/Dashboard.jsx";
+import {useUser} from "../hooks/useUser.jsx";
+
 const Home = () => {
+    useUser();
     return (
-        <div>dashboard</div>
+        <div>
+            <Dashboard activeMenu="Dashboard">
+                This is home page
+            </Dashboard>
+        </div>
     )
 }
 

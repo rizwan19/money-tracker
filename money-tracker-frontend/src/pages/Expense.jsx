@@ -1,6 +1,10 @@
+import Dashboard from "../components/Dashboard.jsx";
+import {useUser} from "../hooks/useUser.jsx";
+
 const Expense = () => {
+    useUser();
     return (
-        <div>Expense</div>
+        <Dashboard activeMenu="Expense">Expense page</Dashboard>
     )
 }
 

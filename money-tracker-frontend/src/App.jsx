@@ -1,4 +1,4 @@
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
@@ -15,16 +15,27 @@ const App = () => {
             <Toaster/>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/dashboard" element={<Home/>}/>
-                    <Route path="/signup" element={<Signup/>}/>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/category" element={<Category/>}/>
-                    <Route path="/income" element={<Income/>}/>
-                    <Route path="/expense" element={<Expense/>}/>
-                    <Route path="/filter" element={<Filter/>}/>
+                    <Route path="/" element={<Root />} />
+                    <Route path="/dashboard" element={<Home/>} />
+                    <Route path="/signup" element={<Signup/>} />
+                    <Route path="/login" element={<Login/>} />
+                    <Route path="/category" element={<Category/>} />
+                    <Route path="/income" element={<Income/>} />
+                    <Route path="/expense" element={<Expense/>} />
+                    <Route path="/filter" element={<Filter/>} />
+                    <Route path="*" element={<Navigate to="/login" replace/>} />
                 </Routes>
             </BrowserRouter>
         </>
+    )
+}
+
+const Root = () => {
+    const isAuthenticated = !!localStorage.getItem("token");
+    return isAuthenticated ? (
+        <Navigate to="/dashboard" />
+    ) : (
+        <Navigate to="/login" />
     )
 }
 

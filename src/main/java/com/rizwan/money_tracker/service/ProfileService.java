@@ -66,7 +66,7 @@ public class ProfileService {
                 .orElseThrow(() -> new UsernameNotFoundException("Profile not found with this email " + authentication.getName()));
     }
 
-    public ProfileDto getPublicProfileDto(String email) {
+    public ProfileDto getPublicProfile(String email) {
         if (StringUtil.isBlank(email)) {
             return toDto(getCurrentProfile());
         }
@@ -81,7 +81,7 @@ public class ProfileService {
             String token = jwtUtil.generateToken(authDto.getEmail());
             return Map.of(
                     "token", token,
-                    "user", getPublicProfileDto(authDto.getEmail())
+                    "user", getPublicProfile(authDto.getEmail())
             );
         } catch(Exception e) {
             throw new RuntimeException("Invalid email or password.");

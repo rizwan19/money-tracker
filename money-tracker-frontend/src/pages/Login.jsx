@@ -1,7 +1,12 @@
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {assets} from "../assets/assets.js";
 import Input from "../components/input.jsx";
+import {validateEmail} from "../util/validation.js";
+import axiosConfig from "../util/axiosConfig.jsx";
+import {API_ENDPOINTS} from "../util/apiEndpoints.js";
+import {AppContext} from "../context/AppContext.jsx";
+import {LoaderCircle} from "lucide-react";
 
 const Login = () => {
 
@@ -9,6 +14,46 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const { setUser } = useContext(AppContext);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+
+        if (!password.trim()) {
+            setError("Password cannot be empty.");
+            setIsLoading(false);
+            return;
+        }
+        if (!validateEmail(email)) {
+            setError("Please enter valid email address");
+            setIsLoading(false);
+            return;
+        }
+        try{
+            const response = await axiosConfig.post(API_ENDPOINTS.LOGIN, {
+                email,
+                password
+            })
+            const {token, user} = response.data;
+            if (token) {
+                localStorage.setItem("token", token);
+                setUser(user);
+                navigate("/dashboard");
+            }
+        } catch (error) {
+            if (error.response && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError(error.message || "Login failed. Please try again.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+
+    }
 
     return (
         <div className="h-screen w-full relative flex items-center justify-center overflow-hidden">
@@ -22,7 +67,7 @@ const Login = () => {
                     <p className="text-sm text-slate-700 text-center mb-8">
                         Please enter your details to login
                     </p>
-                    <form className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <Input
                             value={email}
                             onchange={(e) => setEmail(e.target.value)}
@@ -41,9 +86,15 @@ const Login = () => {
                             <p className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</p>
                         )}
                         <button
-                            className="w-full py-3 text-lg font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 cursor-pointer transition-colors"
+                            disabled={isLoading}
+                            className={`btn-primary w-full py-3 text-lg font-medium flex items-center justify-center gap-2 ${isLoading? 'opacity-60 cursor-not-allowed' : ''}`}
                             type="submit">
-                            Login
+                            {isLoading ? (
+                                <>
+                                    <LoaderCircle className="animate-spin w-5 h-5"/>
+                                    Logging in...
+                                </>
+                            ) : "Login"}
                         </button>
                         <p className="text-sm text-slate-800 text-center mt-6">
                             Don't have an account?

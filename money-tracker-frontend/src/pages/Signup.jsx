@@ -7,6 +7,8 @@ import axiosConfig from "../util/axiosConfig.jsx";
 import {API_ENDPOINTS} from "../util/apiEndpoints.js";
 import toast from "react-hot-toast";
 import {LoaderCircle} from "lucide-react";
+import ProfilePhotoSelector from "../components/ProfilePhotoSelector.jsx";
+import uploadProfileImage from "../util/uploadProfileImage.js";
 
 const Signup = () => {
     const [fullName, setFullName] = useState("");
@@ -15,6 +17,7 @@ const Signup = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [profileImage, setProfileImage] = useState(null);
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -39,10 +42,16 @@ const Signup = () => {
         setEmail("");
 
         try{
+            let profileImageUrl = "";
+            if (profileImage) {
+                const imageUrl = await uploadProfileImage(profileImage);
+                profileImageUrl = imageUrl || "";
+            }
             const response = await axiosConfig.post(API_ENDPOINTS.REGISTER, {
                 fullName,
                 email,
-                password
+                password,
+                profileImageUrl
             })
             if (response.status === 201) {
                 toast.success("Account created successfully! Please login.");
@@ -67,7 +76,7 @@ const Signup = () => {
                     </p>
                     <form className="space-y-4" onSubmit={handleSignup}>
                         <div className="flex justify-center mb-6">
-                            {/* Profile Image */}
+                            <ProfilePhotoSelector image={profileImage} setImage={setProfileImage}/>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                             <Input

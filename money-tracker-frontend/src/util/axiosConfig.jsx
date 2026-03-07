@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosConfig = axios.create({
-    baseURL: "https://money-tracker-3nbw.onrender.com/api/v1",
+    // baseURL: "https://money-tracker-3nbw.onrender.com/api/v1",
+    baseURL: "http://localhost:8080/api/v1.0",
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json"
@@ -12,7 +13,7 @@ const excludeEndpoints = ["/login", "/register", "/activate", "/health", "/statu
 
 axiosConfig.interceptors.request.use(config => {
     const shouldSkipToken = excludeEndpoints.some((endpoint) => {
-        config.url?.includes(endpoint);
+        return config.url?.includes(endpoint);
     })
     if(!shouldSkipToken) {
         const token = localStorage.getItem("token");
