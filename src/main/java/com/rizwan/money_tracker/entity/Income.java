@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "incomes")
@@ -24,15 +24,15 @@ public class Income {
     private Long id;
     private String name;
     private String icon;
-    private LocalDateTime date;
+    private LocalDate date;
     private BigDecimal amount;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime modifiedAt;
+    private LocalDate modifiedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -45,6 +45,6 @@ public class Income {
     @PrePersist
     public void prePersist() {
         if (this.date == null)
-            this.date = LocalDateTime.now();
+            this.date = LocalDate.now();
     }
 }

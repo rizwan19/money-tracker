@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
@@ -17,9 +17,15 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.profile.id = :profileId")
     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long profileId);
 
-    List<Expense> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDateTime startDate, LocalDateTime endDate, String name, Sort sort);
+    List<Expense> findByProfileIdAndNameContainingIgnoreCase(Long profileId, String name, Sort sort);
 
-    List<Expense> findByProfileIdAndDateBetween(Long profileId, LocalDateTime startDate, LocalDateTime endDate);
+    List<Expense> findByProfileIdAndDateGreaterThanEqualAndNameContainingIgnoreCase(Long profileId, LocalDate startDate, String name, Sort sort);
 
-    List<Expense> findByProfileIdAndDate(Long profileId, LocalDateTime date);
+    List<Expense> findByProfileIdAndDateLessThanEqualAndNameContainingIgnoreCase(Long profileId, LocalDate endDate, String name, Sort sort);
+
+    List<Expense> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDate startDate, LocalDate endDate, String name, Sort sort);
+
+    List<Expense> findByProfileIdAndDateBetween(Long profileId, LocalDate startDate, LocalDate endDate);
+
+    List<Expense> findByProfileIdAndDate(Long profileId, LocalDate date);
 }

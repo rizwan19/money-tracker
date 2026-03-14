@@ -8,5 +8,18 @@ export const API_ENDPOINTS = {
     GET_USER_INFO: "/profile",
     GET_ALL_CATEGORIES: "/categories",
     ADD_CATEGORY: "/categories",
-    UPDATE_CATEGORY: (categoryId) => `/categories/${categoryId}`
+    UPDATE_CATEGORY: (categoryId) => `/categories/${categoryId}`,
+    GET_ALL_INCOME: "/incomes",
+    GET_ALL_EXPENSE: "/expenses",
+    CATEGORY_BY_TYPE: (type) => `/categories/${type}`,
+    ADD_INCOME: "/incomes",
+    ADD_EXPENSE: "/expenses",
+    DELETE_INCOME: (id) => `/incomes/${id}`,
+    DELETE_EXPENSE: (id) => `/expenses/${id}`,
+    INCOME_EXCEL_DOWNLOAD: "/incomes/download/excel",
+    EXPENSE_EXCEL_DOWNLOAD: "/expenses/download/excel",
+    EMAIL_INCOME: "/incomes/email",
+    EMAIL_EXPENSE: "/expenses/email",
+    APPLY_FILTERS: "/filter",
+    DASHBOARD_DATA: "/dashboard"
 }

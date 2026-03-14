@@ -2,6 +2,7 @@ import {useContext} from "react";
 import {AppContext} from "../context/AppContext.jsx";
 import {SIDEBAR_DATA} from "../assets/assets.js";
 import {useNavigate} from "react-router-dom";
+import {User} from "lucide-react";
 
 const Sidebar = ({activeMenu}) => {
     const {user} = useContext(AppContext);

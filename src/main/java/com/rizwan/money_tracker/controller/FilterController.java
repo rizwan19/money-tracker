@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/filter")
@@ -26,10 +27,10 @@ public class FilterController {
 
     @PostMapping
     public ResponseEntity<?> filterTransactions(@RequestBody FilteredDto dto) {
-        LocalDateTime startDate = dto.getStartDate() !=null ? dto.getStartDate() : LocalDateTime.MIN;
-        LocalDateTime endDate = dto.getEndDate() !=null ? dto.getEndDate() : LocalDateTime.now();
+        LocalDate startDate = dto.getStartDate();
+        LocalDate endDate = dto.getEndDate();
         String term = dto.getTerm() != null ? dto.getTerm() : "";
-        String sortField = dto.getSortField() != null ? dto.getSortField() : "date";
+        String sortField = resolveSortField(dto.getSortField());
         Sort.Direction direction = "desc".equalsIgnoreCase(dto.getOrder()) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, sortField);
 
@@ -44,5 +45,21 @@ public class FilterController {
         else {
             return ResponseEntity.badRequest().body("Invalid type. Must be 'income' or 'expense'.");
         }
+    }
+
+    private String resolveSortField(String sortField) {
+        if (sortField == null || sortField.isBlank()) {
+            return "date";
+        }
+
+        return switch (sortField.toLowerCase(Locale.ROOT)) {
+            case "amount" -> "amount";
+            case "date" -> "date";
+            case "name" -> "name";
+            case "createdat" -> "createdAt";
+            case "modifiedat" -> "modifiedAt";
+            case "category" -> "category.name";
+            default -> "date";
+        };
     }
 }

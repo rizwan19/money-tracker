@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -18,8 +18,8 @@ public class RecentTransactionDto {
     private String name;
     private String icon;
     private BigDecimal amount;
-    private LocalDateTime date;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private LocalDate date;
+    private LocalDate createdAt;
+    private LocalDate modifiedAt;
     private String type;
 }

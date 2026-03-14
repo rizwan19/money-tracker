@@ -6,20 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class ExpenseDto {
+public class ExpenseDto implements ExcelExportDto {
     private Long id;
     private String name;
-    private LocalDateTime date;
+    private LocalDate date;
     private BigDecimal amount;
     private String icon;
     private String categoryName;
     private Long categoryId;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private LocalDate createdAt;
+    private LocalDate modifiedAt;
 }

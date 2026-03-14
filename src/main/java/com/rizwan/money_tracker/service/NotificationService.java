@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -45,7 +45,7 @@ public class NotificationService {
         List<Profile> profiles = profileRepository.findAll();
 
         for(Profile profile: profiles) {
-            List<ExpenseDto> todaysExpenses = expenseService.getExpensesOnDate(profile.getId(), LocalDateTime.now());
+            List<ExpenseDto> todaysExpenses = expenseService.getExpensesOnDate(profile.getId(), LocalDate.now());
 
             StringBuilder table = new StringBuilder();
             table.append("<table>");
@@ -57,7 +57,7 @@ public class NotificationService {
                             .append("<td>").append(expense.getName()).append("</td>")
                             .append("<td>").append(expense.getAmount()).append("</td>")
                             .append("<td>").append(expense.getCategoryName()).append("</td>")
-                            .append("<td>").append(expense.getDate().toLocalTime().withSecond(0).withNano(0)).append("</td>")
+                            .append("<td>").append(expense.getDate()).append("</td>")
                             .append("</tr>");
                 }
                 table.append("</table>");
