@@ -29,14 +29,14 @@ public class ProfileService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    @Value("${app.activation-url}")
-    private String activationUrl;
+    @Value("${money.manager.frontend.url}")
+    private String frontendUrl;
 
     public ProfileDto regilsterProfile(ProfileDto dto) {
         Profile newProfile = toProfile(dto);
         newProfile.setToken(UUID.randomUUID().toString());
 
-        String activationLink = activationUrl + "/api/v1.0/activate?token=" + newProfile.getToken();
+        String activationLink = frontendUrl + "/activate-account?token=" + newProfile.getToken();
         String subject = "Activate your account";
         String body = "Click on the activation link to activate your account: " + activationLink;
         brevoEmailService.sendEmail(newProfile.getEmail(), newProfile.getFullName(), subject, body, "Thanks");

@@ -23,12 +23,18 @@ public class ProfileController {
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<String> activateProfile(@RequestParam String token) {
+    public ResponseEntity<Map<String, Object>> activateProfile(@RequestParam String token) {
         boolean activated = profileService.activateProfile(token);
         if (activated) {
-            return ResponseEntity.ok("Profile activated successfully.");
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Profile activated successfully."
+            ));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid activation token.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "success", false,
+                    "message", "Invalid activation token."
+            ));
         }
     }
 
