@@ -71,6 +71,24 @@ public class IncomeService {
         return incomes.stream().map(this::toDto).toList();
     }
 
+    public IncomeDto updateIncome(IncomeDto dto) {
+        Long profileId = profileService.getCurrentProfile().getId();
+        Income existingIncome = incomeRepository.findByIdAndProfileId(dto.getId(), profileId)
+                .orElseThrow(() -> new RuntimeException("Income not found with id: " + dto.getId()));
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+
+        if (incomeRepository.existsByNameAndProfileIdAndIdNot(dto.getName(), profileId, dto.getId())) {
+            throw new RuntimeException("Income with name '" + dto.getName() + "' already exists for this profile.");
+        }
+        existingIncome.setName(dto.getName());
+        existingIncome.setCategory(category);
+        existingIncome.setAmount(dto.getAmount());
+        existingIncome.setDate(dto.getDate());
+        existingIncome.setIcon(dto.getIcon());
+        return toDto(incomeRepository.save(existingIncome));
+    }
+
     public void deleteIncome(Long id) {
         Profile profile = profileService.getCurrentProfile();
         Income income = incomeRepository.findById(id).orElseThrow(() -> new RuntimeException("Income not found"));

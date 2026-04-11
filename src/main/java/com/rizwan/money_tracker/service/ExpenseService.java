@@ -232,4 +232,22 @@ public class ExpenseService {
         return value != null ? value : "";
     }
 
+    public ExpenseDto updateExpense(ExpenseDto dto) {
+        Long profileId = profileService.getCurrentProfile().getId();
+        Expense existingExpense = expenseRepository.findByIdAndProfileId(dto.getId(), profileId)
+                .orElseThrow(() -> new RuntimeException("Expense not found with id: " + dto.getId()));
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+
+        if (expenseRepository.existsByNameAndProfileIdAndIdNot(dto.getName(), profileId, dto.getId())) {
+            throw new RuntimeException("Expense with name '" + dto.getName() + "' already exists for this profile.");
+        }
+        existingExpense.setName(dto.getName());
+        existingExpense.setCategory(category);
+        existingExpense.setAmount(dto.getAmount());
+        existingExpense.setDate(dto.getDate());
+        existingExpense.setIcon(dto.getIcon());
+        return toDto(expenseRepository.save(existingExpense));
+    }
+
 }

@@ -55,4 +55,10 @@ public class ExpenseController {
         expenseService.emailCurrentMonthExpenseDetails();
         return ResponseEntity.ok(Map.of("message", "Expense details emailed successfully"));
     }
+
+    @PutMapping("/{expenseId}")
+    public ResponseEntity<ExpenseDto> updateIncome(@PathVariable Long expenseId, @RequestBody ExpenseDto expenseDto) {
+        expenseDto.setId(expenseId);
+        return ResponseEntity.ok(expenseService.updateExpense(expenseDto));
+    }
 }

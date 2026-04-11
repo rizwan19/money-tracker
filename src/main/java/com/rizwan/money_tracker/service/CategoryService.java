@@ -67,13 +67,20 @@ public class CategoryService {
         Category existingCategory = categoryRepository.findByIdAndProfileId(dto.getId(), profileId)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getId()));
 
-        if (categoryRepository.existsByNameAndProfileId(dto.getName(), profileId)) {
+        if (categoryRepository.existsByNameAndProfileIdAndIdNot(dto.getName(), profileId, dto.getId())) {
             throw new RuntimeException("Category with name '" + dto.getName() + "' already exists for this profile.");
         }
         existingCategory.setName(dto.getName());
         existingCategory.setIcon(dto.getIcon());
         existingCategory.setType(dto.getType());
         return toDto(categoryRepository.save(existingCategory));
+    }
+
+    public CategoryDto getCategoryById(Long id) {
+        Long profileId = profileService.getCurrentProfile().getId();
+        Category category = categoryRepository.findByIdAndProfileId(id, profileId)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        return toDto(category);
     }
 
 }

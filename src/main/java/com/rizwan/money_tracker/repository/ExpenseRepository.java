@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
@@ -28,4 +29,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByProfileIdAndDateBetween(Long profileId, LocalDate startDate, LocalDate endDate);
 
     List<Expense> findByProfileIdAndDate(Long profileId, LocalDate date);
+
+    Optional<Expense> findByIdAndProfileId(Long id, Long profileId);
+
+    Boolean existsByNameAndProfileIdAndIdNot(String name, Long profileId, Long id);
+
 }
