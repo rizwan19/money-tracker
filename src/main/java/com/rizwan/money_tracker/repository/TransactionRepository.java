@@ -31,7 +31,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByProfileIdAndTypeAndDate(Long profileId, TransactionType type, LocalDate date);
 
-    Optional<Transaction> findByIdAndProfileId(Long id, Long profileId);
+    List<Transaction> findByProfileIdAndCategoryId(Long profileId, Long categoryId);
 
-    Boolean existsByNameAndProfileIdAndTypeAndIdNot(String name, Long profileId, TransactionType type, Long id);
+    Optional<Transaction> findByIdAndProfileId(Long id, Long profileId);
 }

@@ -55,10 +55,6 @@ public class TransactionService {
         Category category = findCategoryByIdAndProfileId(dto.getCategoryId(), profileId);
         validateTypeMatchesCategory(dto.getType(), category);
 
-        if (transactionRepository.existsByNameAndProfileIdAndTypeAndIdNot(dto.getName(), profileId, dto.getType(), id)) {
-            throw new RuntimeException("Transaction with name '" + dto.getName() + "' already exists for this type.");
-        }
-
         existingTransaction.setName(dto.getName());
         existingTransaction.setCategory(category);
         existingTransaction.setAmount(dto.getAmount());
