@@ -1,7 +1,8 @@
 package com.rizwan.money_tracker.service;
 
-import com.rizwan.money_tracker.dto.ExpenseDto;
+import com.rizwan.money_tracker.dto.TransactionDto;
 import com.rizwan.money_tracker.entity.Profile;
+import com.rizwan.money_tracker.entity.TransactionType;
 import com.rizwan.money_tracker.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ import java.util.List;
 public class NotificationService {
 
     private final ProfileRepository profileRepository;
-    private final ExpenseService expenseService;
+    private final TransactionService transactionService;
     private final BrevoEmailService brevoEmailService;
 
     @Value("${money.manager.frontend.url}")
@@ -45,14 +46,14 @@ public class NotificationService {
         List<Profile> profiles = profileRepository.findAll();
 
         for(Profile profile: profiles) {
-            List<ExpenseDto> todaysExpenses = expenseService.getExpensesOnDate(profile.getId(), LocalDate.now());
+            List<TransactionDto> todaysExpenses = transactionService.getTransactionsOnDate(profile.getId(), LocalDate.now(), TransactionType.EXPENSE);
 
             StringBuilder table = new StringBuilder();
             table.append("<table>");
             table.append("<tr><th>Name</th><th>Amount</th><th>Category</th><th>Date</th></tr>");
 
             if (!todaysExpenses.isEmpty()) {
-                for (ExpenseDto expense : todaysExpenses) {
+                for (TransactionDto expense : todaysExpenses) {
                     table.append("<tr>")
                             .append("<td>").append(expense.getName()).append("</td>")
                             .append("<td>").append(expense.getAmount()).append("</td>")

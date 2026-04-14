@@ -1,5 +1,6 @@
 package com.rizwan.money_tracker.dto;
 
+import com.rizwan.money_tracker.entity.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,5 +22,5 @@ public class RecentTransactionDto {
     private LocalDate date;
     private LocalDate createdAt;
     private LocalDate modifiedAt;
-    private String type;
+    private TransactionType type;
 }

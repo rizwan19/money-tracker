@@ -1,5 +1,6 @@
 package com.rizwan.money_tracker.dto;
 
+import com.rizwan.money_tracker.entity.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @Builder
-public class IncomeDto implements ExcelExportDto {
+public class TransactionDto implements ExcelExportDto {
     private Long id;
     private String name;
     private LocalDate date;
@@ -20,6 +21,7 @@ public class IncomeDto implements ExcelExportDto {
     private String icon;
     private String categoryName;
     private Long categoryId;
+    private TransactionType type;
     private LocalDate createdAt;
     private LocalDate modifiedAt;
 }

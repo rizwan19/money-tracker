@@ -1,10 +1,9 @@
 package com.rizwan.money_tracker.controller;
 
-import com.rizwan.money_tracker.dto.ExpenseDto;
 import com.rizwan.money_tracker.dto.FilteredDto;
-import com.rizwan.money_tracker.dto.IncomeDto;
-import com.rizwan.money_tracker.service.ExpenseService;
-import com.rizwan.money_tracker.service.IncomeService;
+import com.rizwan.money_tracker.dto.TransactionDto;
+import com.rizwan.money_tracker.entity.TransactionType;
+import com.rizwan.money_tracker.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +21,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class FilterController {
 
-    private final ExpenseService expenseService;
-    private final IncomeService incomeService;
+    private final TransactionService transactionService;
 
     @PostMapping
     public ResponseEntity<?> filterTransactions(@RequestBody FilteredDto dto) {
@@ -34,15 +32,11 @@ public class FilterController {
         Sort.Direction direction = "desc".equalsIgnoreCase(dto.getOrder()) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, sortField);
 
-        if ("income".equalsIgnoreCase(dto.getType())) {
-            List<IncomeDto> incomes = incomeService.filterIncomes(startDate, endDate, term, sort);
-            return ResponseEntity.ok(incomes);
-        }
-        else if ("expense".equalsIgnoreCase(dto.getType())) {
-            List<ExpenseDto> expenses = expenseService.filterExpenses(startDate, endDate, term, sort);
-            return ResponseEntity.ok(expenses);
-        }
-        else {
+        try {
+            TransactionType transactionType = TransactionType.fromValue(dto.getType());
+            List<TransactionDto> transactions = transactionService.filterTransactions(transactionType, startDate, endDate, term, sort);
+            return ResponseEntity.ok(transactions);
+        } catch (IllegalArgumentException exception) {
             return ResponseEntity.badRequest().body("Invalid type. Must be 'income' or 'expense'.");
         }
     }

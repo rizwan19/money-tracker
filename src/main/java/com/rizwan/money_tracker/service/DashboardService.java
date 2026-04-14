@@ -1,8 +1,8 @@
 package com.rizwan.money_tracker.service;
 
-import com.rizwan.money_tracker.dto.ExpenseDto;
-import com.rizwan.money_tracker.dto.IncomeDto;
 import com.rizwan.money_tracker.dto.RecentTransactionDto;
+import com.rizwan.money_tracker.dto.TransactionDto;
+import com.rizwan.money_tracker.entity.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,46 +15,45 @@ import java.util.Map;
 @Service
 public class DashboardService {
 
-    private final IncomeService incomeService;
-    private final ExpenseService expenseService;
+    private final TransactionService transactionService;
     private final ProfileService profileService;
 
     public Map<String, Object> getDashboardData() {
         var profile = profileService.getCurrentProfile();
-        List<IncomeDto> latestIncomes = incomeService.getLatestFiveIncomes();
-        List<ExpenseDto> latestExpenses = expenseService.getLatestFiveExpenses();
+        List<TransactionDto> latestIncomes = transactionService.getLatestFiveTransactions(TransactionType.INCOME);
+        List<TransactionDto> latestExpenses = transactionService.getLatestFiveTransactions(TransactionType.EXPENSE);
         List<RecentTransactionDto> recentTransactions = new ArrayList<>();
         Map<String, Object> returnValue = new HashMap<>();
-        List<RecentTransactionDto> incomeInfo = latestIncomes.stream().map(income ->
+        List<RecentTransactionDto> incomeInfo = latestIncomes.stream().map(transaction ->
             RecentTransactionDto.builder()
-                    .id(income.getId())
-                    .name(income.getName())
-                    .date(income.getDate())
+                    .id(transaction.getId())
+                    .name(transaction.getName())
+                    .date(transaction.getDate())
                     .profileId(profile.getId())
-                    .icon(income.getIcon())
-                    .type("INCOME")
-                    .createdAt(income.getCreatedAt())
-                    .modifiedAt(income.getModifiedAt())
-                    .amount(income.getAmount())
+                    .icon(transaction.getIcon())
+                    .type(TransactionType.INCOME)
+                    .createdAt(transaction.getCreatedAt())
+                    .modifiedAt(transaction.getModifiedAt())
+                    .amount(transaction.getAmount())
                     .build()).toList();
         List<RecentTransactionDto> expenseInfo =
-            latestExpenses.stream().map(expense -> RecentTransactionDto.builder()
-                    .id(expense.getId())
-                    .name(expense.getName())
-                    .date(expense.getDate())
+            latestExpenses.stream().map(transaction -> RecentTransactionDto.builder()
+                    .id(transaction.getId())
+                    .name(transaction.getName())
+                    .date(transaction.getDate())
                     .profileId(profile.getId())
-                    .icon(expense.getIcon())
-                    .type("EXPENSE")
-                    .createdAt(expense.getCreatedAt())
-                    .modifiedAt(expense.getModifiedAt())
-                    .amount(expense.getAmount())
+                    .icon(transaction.getIcon())
+                    .type(TransactionType.EXPENSE)
+                    .createdAt(transaction.getCreatedAt())
+                    .modifiedAt(transaction.getModifiedAt())
+                    .amount(transaction.getAmount())
                     .build()).toList();
         recentTransactions.addAll(incomeInfo);
         recentTransactions.addAll(expenseInfo);
 
-        returnValue.put("totalBalance", incomeService.getTotalIncome().subtract(expenseService.getTotalExpense()));
-        returnValue.put("totalIncome", incomeService.getTotalIncome());
-        returnValue.put("totalExpense", expenseService.getTotalExpense());
+        returnValue.put("totalBalance", transactionService.getTotalByType(TransactionType.INCOME).subtract(transactionService.getTotalByType(TransactionType.EXPENSE)));
+        returnValue.put("totalIncome", transactionService.getTotalByType(TransactionType.INCOME));
+        returnValue.put("totalExpense", transactionService.getTotalByType(TransactionType.EXPENSE));
         returnValue.put("recentFiveExpenses", latestExpenses);
         returnValue.put("recentFiveIncomes", latestIncomes);
         returnValue.put("recentTransactions", recentTransactions.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).toList());
