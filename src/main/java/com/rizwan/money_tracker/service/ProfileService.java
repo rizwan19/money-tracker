@@ -1,9 +1,11 @@
 package com.rizwan.money_tracker.service;
 
 import com.rizwan.money_tracker.dto.AuthDto;
-import com.rizwan.money_tracker.dto.ProfileDto;
+import com.rizwan.money_tracker.dto.profile.ProfileDto;
+import com.rizwan.money_tracker.dto.profile.ProfileUpdateRequest;
 import com.rizwan.money_tracker.entity.Profile;
 import com.rizwan.money_tracker.repository.ProfileRepository;
+import com.rizwan.money_tracker.service.validator.ProfileValidator;
 import com.rizwan.money_tracker.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.util.StringUtil;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -28,11 +31,12 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final ProfileValidator profileValidator;
 
     @Value("${money.manager.frontend.url}")
     private String frontendUrl;
 
-    public ProfileDto regilsterProfile(ProfileDto dto) {
+    public ProfileDto registerProfile(ProfileDto dto) {
         Profile newProfile = toProfile(dto);
         newProfile.setToken(UUID.randomUUID().toString());
 
@@ -88,6 +92,24 @@ public class ProfileService {
         }
     }
 
+    public ProfileDto getProfileDetails() {
+        return toDto(getCurrentProfile());
+    }
+
+    public ProfileDto updateProfile(ProfileUpdateRequest request) {
+        if (Objects.isNull(request))
+            throw new RuntimeException("Profile update request is required");
+        Profile profile = getCurrentProfile();
+
+        if (profileValidator.hasNewPassword(request)) {
+            profileValidator.validatePasswordUpdate(profile, request);
+            profile.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+        profile.setFullName(request.getFullName());
+        profile.setProfileImageUrl(request.getProfileImageUrl());
+        return toDto(profileRepository.save(profile));
+    }
+
     private Profile toProfile(ProfileDto dto) {
         Profile profile = new Profile();
         profile.setEmail(dto.getEmail());
@@ -99,6 +121,7 @@ public class ProfileService {
 
     private ProfileDto toDto(Profile profile) {
         return ProfileDto.builder()
+                .id(profile.getId())
                 .email(profile.getEmail())
                 .fullName(profile.getFullName())
                 .profileImageUrl(profile.getProfileImageUrl())

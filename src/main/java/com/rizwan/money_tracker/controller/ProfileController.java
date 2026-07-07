@@ -1,7 +1,8 @@
 package com.rizwan.money_tracker.controller;
 
 import com.rizwan.money_tracker.dto.AuthDto;
-import com.rizwan.money_tracker.dto.ProfileDto;
+import com.rizwan.money_tracker.dto.profile.ProfileDto;
+import com.rizwan.money_tracker.dto.profile.ProfileUpdateRequest;
 import com.rizwan.money_tracker.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
@@ -18,7 +20,7 @@ public class ProfileController {
 
     @PostMapping("/register")
     public ResponseEntity<ProfileDto> registerProfile(@RequestBody ProfileDto dto) {
-        ProfileDto registeredProfile = profileService.regilsterProfile(dto);
+        ProfileDto registeredProfile = profileService.registerProfile(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
     }
 
@@ -58,8 +60,18 @@ public class ProfileController {
         return "Hello World";
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/info")
     public ResponseEntity<ProfileDto> getPublicProfile() {
         return ResponseEntity.ok(profileService.getPublicProfile(null));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ProfileDto> updateProfile(@RequestBody ProfileUpdateRequest request) {
+        return ResponseEntity.ok(profileService.updateProfile(request));
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<ProfileDto> getProfileDetails() {
+        return ResponseEntity.ok(profileService.getProfileDetails());
     }
 }

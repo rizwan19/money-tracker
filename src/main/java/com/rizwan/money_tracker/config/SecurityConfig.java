@@ -37,11 +37,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                        "/status",
-                        "/health",
-                        "/register",
-                        "/login",
-                        "/activate"
+                        "/profile/status",
+                        "/profile/health",
+                        "/profile/register",
+                        "/profile/login",
+                        "/profile/activate"
                 ).permitAll()
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(
