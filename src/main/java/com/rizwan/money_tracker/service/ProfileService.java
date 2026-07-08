@@ -1,6 +1,8 @@
 package com.rizwan.money_tracker.service;
 
 import com.rizwan.money_tracker.dto.AuthDto;
+import com.rizwan.money_tracker.dto.auth.AuthTokensResult;
+import com.rizwan.money_tracker.dto.auth.LoginResponseDto;
 import com.rizwan.money_tracker.dto.profile.ProfileDto;
 import com.rizwan.money_tracker.dto.profile.ProfileUpdateRequest;
 import com.rizwan.money_tracker.entity.Profile;
@@ -18,7 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public class ProfileService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final ProfileValidator profileValidator;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${money.manager.frontend.url}")
     private String frontendUrl;
@@ -58,6 +60,11 @@ public class ProfileService {
             .orElse(false);
     }
 
+    public boolean isAccountPresent(String email) {
+        return profileRepository.findByEmail(email)
+                .isPresent();
+    }
+
     public boolean isAccountActive(String email) {
         return profileRepository.findByEmail(email)
             .map(Profile::isActive)
@@ -79,17 +86,30 @@ public class ProfileService {
                 .orElseThrow(() -> new UsernameNotFoundException("Profile not found with this email " + email));
     }
 
-    public Map<String, Object> login(AuthDto authDto) {
-        try{
+    public AuthTokensResult login(AuthDto authDto) {
+        Profile profile;
+        try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword()));
-            String token = jwtUtil.generateToken(authDto.getEmail());
-            return Map.of(
-                    "token", token,
-                    "user", getPublicProfile(authDto.getEmail())
-            );
-        } catch(Exception e) {
+            profile = profileRepository.findByEmail(authDto.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("Profile not found with this email " + authDto.getEmail()));
+        } catch (Exception e) {
             throw new RuntimeException("Invalid email or password.");
         }
+
+        LoginResponseDto response = issueAccessToken(profile);
+        String refreshToken = refreshTokenService.createRefreshToken(profile);
+        return AuthTokensResult.builder()
+                .response(response)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public LoginResponseDto issueAccessToken(Profile profile) {
+        String accessToken = jwtUtil.generateToken(profile.getEmail());
+        return LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .user(toDto(profile))
+                .build();
     }
 
     public ProfileDto getProfileDetails() {

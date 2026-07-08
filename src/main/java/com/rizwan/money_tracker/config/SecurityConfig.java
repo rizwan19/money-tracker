@@ -41,6 +41,8 @@ public class SecurityConfig {
                         "/profile/health",
                         "/profile/register",
                         "/profile/login",
+                        "/profile/refresh-token",
+                        "/profile/logout",
                         "/profile/activate"
                 ).permitAll()
                 .anyRequest().authenticated())

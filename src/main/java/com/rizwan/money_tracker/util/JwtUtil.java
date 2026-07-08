@@ -15,17 +15,21 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    private static final long DEFAULT_EXPIRATION_MS = 3_600_000;
+    private static final long DEFAULT_EXPIRATION_MS = 3_000_00;
+    private static final long DEFAULT_REFRESH_EXPIRATION_MS = 604_800_000;
 
     private final SecretKey signingKey;
     private final long expirationMs;
+    private final long refreshExpirationMs;
 
     public JwtUtil(
             @Value("${jwt.secret:dGhpcy1pcy1hLWRldi1zZWNyZXQtcGxlYXNlLWNoYW5nZQ==}") String secret,
-            @Value("${jwt.expiration-ms:" + DEFAULT_EXPIRATION_MS + "}") long expirationMs
+            @Value("${jwt.expiration-ms:" + DEFAULT_EXPIRATION_MS + "}") long expirationMs,
+            @Value("${jwt.refresh-expiration-ms:" + DEFAULT_REFRESH_EXPIRATION_MS + "}") long refreshExpirationMs
     ) {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.expirationMs = expirationMs;
+        this.refreshExpirationMs = refreshExpirationMs;
     }
 
     public String generateToken(String subject) {
@@ -33,8 +37,16 @@ public class JwtUtil {
     }
 
     public String generateToken(Map<String, Object> extraClaims, String subject) {
+        return buildToken(extraClaims, subject, expirationMs);
+    }
+
+    public String generateRefreshToken(String subject) {
+        return buildToken(Map.of("type", "refresh"), subject, refreshExpirationMs);
+    }
+
+    private String buildToken(Map<String, Object> extraClaims, String subject, long ttlMs) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+        Date expiry = new Date(now.getTime() + ttlMs);
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(subject)
