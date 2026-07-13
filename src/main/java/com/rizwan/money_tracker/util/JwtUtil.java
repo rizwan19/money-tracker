@@ -1,6 +1,8 @@
 package com.rizwan.money_tracker.util;
 
+import com.rizwan.money_tracker.exception.InvalidRefreshTokenException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -54,6 +56,28 @@ public class JwtUtil {
                 .expiration(expiry)
                 .signWith(signingKey)
                 .compact();
+    }
+
+    /**
+     * Verify a refresh JWT and return its subject email.
+     * Checks signature, expiry, structure, and that the {@code type=refresh} claim is present.
+     * Any JJWT parsing failure is mapped to {@link InvalidRefreshTokenException} (401) without
+     * leaking parser details to callers. There is no unchecked "decode only" path.
+     */
+    public String parseRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            if (!"refresh".equals(claims.get("type", String.class))) {
+                throw new InvalidRefreshTokenException("Invalid refresh token.");
+            }
+            return claims.getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidRefreshTokenException("Invalid refresh token.");
+        }
     }
 
     public String extractEmail(String token) {

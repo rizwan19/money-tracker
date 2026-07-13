@@ -3,9 +3,10 @@ package com.rizwan.money_tracker.controller;
 import com.rizwan.money_tracker.dto.AuthDto;
 import com.rizwan.money_tracker.dto.auth.AuthTokensResult;
 import com.rizwan.money_tracker.dto.auth.LoginResponseDto;
+import com.rizwan.money_tracker.dto.auth.RefreshTokenRotationResult;
 import com.rizwan.money_tracker.dto.profile.ProfileDto;
 import com.rizwan.money_tracker.dto.profile.ProfileUpdateRequest;
-import com.rizwan.money_tracker.entity.RefreshToken;
+import com.rizwan.money_tracker.exception.RefreshTokenStoreUnavailableException;
 import com.rizwan.money_tracker.service.ProfileService;
 import com.rizwan.money_tracker.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,9 @@ public class ProfileController {
 
     @Value("${app.refresh-cookie.same-site:None}")
     private String refreshCookieSameSite;
+
+    @Value("${jwt.refresh-expiration-ms:604800000}")
+    private long refreshExpirationMs;
 
     @PostMapping("/register")
     public ResponseEntity<ProfileDto> registerProfile(@RequestBody ProfileDto dto) {
@@ -70,10 +74,12 @@ public class ProfileController {
                         .body(Map.of("message", "Account is not activated"));
             }
             AuthTokensResult tokens = profileService.login(authDto);
-            ResponseCookie cookie = buildRefreshCookie(tokens.getRefreshToken(), Duration.ofDays(7));
+            ResponseCookie cookie = buildRefreshCookie(tokens.getRefreshToken(), refreshCookieMaxAge());
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(tokens.getResponse());
+        } catch (RefreshTokenStoreUnavailableException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", e.getMessage()));
@@ -83,9 +89,12 @@ public class ProfileController {
     @PostMapping("/refresh-token")
     public ResponseEntity<LoginResponseDto> refreshToken(
             @CookieValue(name = REFRESH_COOKIE_NAME, required = false) String refreshToken) {
-        RefreshToken stored = refreshTokenService.validate(refreshToken);
-        LoginResponseDto response = profileService.issueAccessToken(stored.getProfile());
-        return ResponseEntity.ok(response);
+        RefreshTokenRotationResult rotation = refreshTokenService.rotateRefreshToken(refreshToken);
+        LoginResponseDto response = profileService.issueAccessToken(rotation.profile());
+        ResponseCookie cookie = buildRefreshCookie(rotation.refreshToken(), refreshCookieMaxAge());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(response);
     }
 
     @PostMapping("/logout")
@@ -116,6 +125,10 @@ public class ProfileController {
     @GetMapping("/details")
     public ResponseEntity<ProfileDto> getProfileDetails() {
         return ResponseEntity.ok(profileService.getProfileDetails());
+    }
+
+    private Duration refreshCookieMaxAge() {
+        return Duration.ofMillis(refreshExpirationMs);
     }
 
     private ResponseCookie buildRefreshCookie(String value, Duration maxAge) {
